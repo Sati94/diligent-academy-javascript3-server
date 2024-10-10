@@ -1,55 +1,76 @@
 const prompt = require('prompt-sync')()
+const BASE_URL = 'http://localhost:3000/todos';
 
+const getTodos = async () => {
+    try {
+        const response = await fetch(BASE_URL)
+        const todos = await response.json();
+        console.log(todos);
+    } catch (error) {
+        console.error('Error fetching todos:' + error);
+    }
 
+}
 
-/*fetch(`http://localhost:3000/todos`, {
-    method: 'POST',
-    headers: {
-        'Content-type': 'application/json'
-    },
-    body: JSON.stringify({ title: 'Something' })
-})
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-    })
-    .catch(error => {
-        console.error(error);
-    })
+const postTodo = async () => {
+    const newTodoTitle = prompt('Enter todo title: ')
+    try {
+        const response = await fetch(BASE_URL, {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({ title: newTodoTitle })
+        })
+        const newTodo = await response.json();
+        console.log('New todo created:', newTodo);
 
+    } catch (error) {
+        console.error('Error posting todos:' + error);
+    }
+}
+//postTodo();
 
-fetch(`http://localhost:3000/todos`)
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-    })
-    .catch(error => {
-        console.error(error);
-    })
+const putTodo = async () => {
+    const updatedId = prompt('Enter the ID of the todo to update: ');
+    const updatedTitle = prompt('Enter the new title: ');
 
-fetch(`http://localhost:3000/todos/2`, {
-    method: 'PUT',
-    headers: {
-        'Content-type': 'application/json'
-    },
-    body: JSON.stringify({ title: 'New Title' })
-})
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-    })
-    .catch(error => {
-        console.error(error);
-    })*/
+    try {
+        const response = await fetch(`${BASE_URL}/${updatedId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({ title: updatedTitle })
+        })
+        if (response.ok) {
+            const updatedTodo = await response.json();
+            console.log('Todo updated : ' + updatedTodo.title);
+        }
+        else {
+            console.error('Error updating todo: ' + await response.json());
+        }
 
-fetch(`http://localhost:3000/todos/2`, {
-    method: 'Delete'
+    } catch (error) {
+        console.error('Error updating todos:' + error);
+    }
+}
+//putTodo();
+const deleteTodo = async () => {
+    const deleteId = prompt('Enter the ID of the todo to delete: ');
+    try {
+        const response = await fetch(`${BASE_URL}/${deleteId}`, {
+            method: "DELETE"
+        })
+        if (response.ok) {
+            console.log('Todo deleted successfully.')
+        }
+        else {
+            console.error('Error deleting todo:' + await response.json());
+        }
 
-})
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-    })
-    .catch(error => {
-        console.error(error);
-    })
+    } catch (error) {
+        console.error('Error deleting todo:' + error)
+    }
+}
+deleteTodo();
