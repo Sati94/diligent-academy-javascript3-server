@@ -1,59 +1,107 @@
 const fs = require('fs');
 const express = require('express');
 
+
 const port = 3000;
+
 const app = express();
 
-const users = [
-  { id: 1, name: "John Doe" },
-  { id: 2, name: "Bob Smith" },
-  { id: 3, name: "Alber Johnson" }
-]
-
-/* app.get("/users", (req, res) => {
-  console.log(req.query)
-  const {name} = req.query;
-  
-  
-  const result = users.filter((user) => user.name.toLowerCase().includes(name.toLowerCase()));
-  res.json(result);
-  }) */
 app.use(express.json())
- 
-/* app.post('/users', (req, res) => {
-  const newUser = req.body;
-  console.log(req.body);
-  
-  newUser.id = users.length + 1;
-  users.push(newUser);
-  res.status(201).json(newUser);
-}) */
 
+const readTodo = () => {
+  try {
+    const data = fs.readFileSync('data.json', 'utf-8');
+    console.log('Read:' + data);
+    return JSON.parse(data);
 
-/* app.put('/users/:id', (req, res) => {
-  const { id } = req.params;
-  const updatedUser = req.body;
+  } catch (error) {
+    console.error('Read error ' + error)
+    //throw new Error(error.message)
+  };
+}
 
-  const userIndex = users.findIndex(user => user.id === parseInt(id));
-
-  if (userIndex !== -1) {
-    users[userIndex] = {...users[userIndex], ...updatedUser}
-    res.json(users);
-  } else {
-    res.status(404).json({message: 'User not found'})
+const writeTodo = (todo) => {
+  try {
+    const data = fs.writeFileSync('data.json', JSON.stringify(todo, null, 2));
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw new Error(error.message)
   }
-}) */
 
-app.delete('/users/:id', (req, res) => {
-  const { id } = req.params;
+}
 
-  const userIndex = users.findIndex(user => user.id === parseInt(id));
 
-  if(userIndex !== -1) {
-    users.splice(userIndex, 1);
-    res.json(users)
-  } else {
-    res.status(404).json({message: 'User not found'})
+app.get("/todos", (req, res) => {
+  try {
+    const todos = readTodo();
+    res.status(200).json(todos);
+
+  } catch (error) {
+    res.status(500).json({ message: "Get error" })
+  }
+
+})
+
+
+app.post('/todos', (req, res) => {
+  try {
+    const todos = readTodo();
+    console.log('(Post)Length ' + todos.length)
+    const newTodo = { ...req.body, id: todos.length ? todos[todos.length - 1].id + 1 : 1 };
+    console.log('(Post)Req.body:' + req.body);
+    console.log('(Post)ID :' + newTodo.id);
+    writeTodo([...todos, newTodo]);
+    res.status(201).json(newTodo);
+
+  } catch (error) {
+    res.status(500).json({ message: error })
+  }
+
+})
+
+
+app.put('/todos/:id', (req, res) => {
+  try {
+    const todos = readTodo();
+    const { id } = req.params;
+    const updatedTodo = req.body;
+
+    const todoIndex = todos.findIndex(todo => todo.id === parseInt(id));
+
+    if (todoIndex !== -1) {
+      todos[todoIndex] = { ...todos[todoIndex], ...updatedTodo }
+      writeTodo(todos);
+      res.status(201).json(updatedTodo);
+
+    } else {
+      res.status(404).json({ message: 'Todo not found' })
+    }
+  }
+  catch (error) {
+    res.status(500).json({ message: 'Put error in server' })
+  }
+
+})
+
+app.delete('/todos/:id', (req, res) => {
+  try {
+    const todos = readTodo();
+    const { id } = req.params;
+
+
+    const todoIndex = todos.findIndex(todo => todo.id === parseInt(id));
+
+    if (todoIndex !== -1) {
+      todos.splice(todoIndex, 1);
+      writeTodo(todos);
+      res.status(201).json(todos);
+    } else {
+      res.status(404).json({ message: 'Todo not found' })
+    }
+  }
+  catch (error) {
+    res.status(500).json({ message: 'Delete error in server' })
   }
 })
 
