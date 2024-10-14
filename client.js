@@ -11,7 +11,7 @@ const getTodos = async () => {
         const todos = await response.json();
         console.log(todos);
     } catch (error) {
-        console.error('Error fetching todos:' + error);
+        console.error(`Error fetching todos: ${error.message}`);
     }
 }
 
@@ -26,10 +26,10 @@ const postTodo = async () => {
             body: JSON.stringify({title: newTodoTitle})
         })
         const newTodo = await response.json();
-        console.log('New todo created:', newTodo);
+        console.log(`New todo created: ${newTodo}`);
 
     } catch (error) {
-        console.error('Error posting todos:' + error);
+        console.error(`Error creating new todo: ${error.message}`);
     }
 }
 
@@ -47,13 +47,14 @@ const putTodo = async () => {
         })
         if (response.ok) {
             const updatedTodo = await response.json();
-            console.log('Todo updated : ' + updatedTodo.title);
+            console.log(`Todo updated :  ${updatedTodo.title}`);
         } else {
-            console.error('Error updating todo: ' + await response.json());
+            const error = await response.json();
+            console.error(`Error updating todos: ${error.message}`);
         }
 
     } catch (error) {
-        console.error('Error updating todos:' + error);
+        console.error(`Error updating todos: ${error.message}`);
     }
 }
 
@@ -66,11 +67,12 @@ const deleteTodo = async () => {
         if (response.ok) {
             console.log('Todo deleted successfully.')
         } else {
-            console.error('Error deleting todo:' + await response.json());
+            const error = await response.json();
+            console.error(`Error deleting todo: ${error.message}`);
         }
 
     } catch (error) {
-        console.error('Error deleting todo:' + error)
+        console.error(`Error deleting todo: ${error.message}`)
     }
 }
 
