@@ -79,7 +79,7 @@ const deleteTodo = async () => {
 const ui = async () => {
 
     presentOptions();
-    while(await selectAction()){
+    while(await selectAction() !== 'x'){
         presentOptions();
     }
 
@@ -106,7 +106,7 @@ const selectAction = async () => {
             await deleteTodo();
             return true;
         case 'x':
-            return false;
+            return  'x';
         default:
             console.log('Invalid input');
             await selectAction();
