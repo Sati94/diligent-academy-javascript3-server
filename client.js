@@ -13,7 +13,6 @@ const getTodos = async () => {
     } catch (error) {
         console.error('Error fetching todos:' + error);
     }
-
 }
 
 const postTodo = async () => {
@@ -74,4 +73,52 @@ const deleteTodo = async () => {
         console.error('Error deleting todo:' + error)
     }
 }
-deleteTodo();
+
+const ui = async () => {
+
+    presentOptions();
+    while(await selectAction()){
+        presentOptions();
+    }
+
+    console.log('Goodbye!')
+
+}
+
+const selectAction = async () => {
+
+
+    const action = getInput('Enter a number to select an action');
+
+    switch (action) {
+        case '0' :
+            await getTodos();
+            return true;
+        case '1' :
+            await postTodo();
+            return true;
+        case '2' :
+            await putTodo();
+            return true;
+        case '3' :
+            await deleteTodo();
+            return true;
+        case 'x':
+            return false;
+        default:
+            console.log('Invalid input');
+            await selectAction();
+    }
+}
+
+function presentOptions() {
+    console.log('Get all Todos: 0');
+    console.log('Post new Todo: 1');
+    console.log('Update existing Todo: 2');
+    console.log('Delete existing Todo: 3');
+    console.log('Escape: x');
+}
+
+ui();
+
+
